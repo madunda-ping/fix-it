@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fix It</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+
+    <style>
+      body {
+        transition:
+          background 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* FULL DARK MODE */
+      body.dark-mode {
+        background: #111827;
+        color: white;
+      }
+
+      body.dark-mode header {
+        background: #1f2937;
+      }
+
+      body.dark-mode .card {
+        background: #1f2937;
+        color: white;
+      }
+
+      body.dark-mode .card p {
+        color: #d1d5db;
+      }
+
+      body.dark-mode input {
+        background: #1f2937;
+        color: white;
+        border-color: #374151;
+      }
+
+      body.dark-mode input::placeholder {
+        color: #9ca3af;
+      }
+
+      body.dark-mode .modal-box {
+        background: #1f2937;
+        color: white;
+      }
+
+      body.dark-mode #results {
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body class="bg-orange-50 min-h-screen">
+    <!-- HEADER -->
+    <header class="bg-orange-600 text-white shadow-lg">
+      <div
+        class="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center"
+      >
+        <div class="flex items-center gap-3">
+          <i data-lucide="wrench" class="w-8 h-8"></i>
+          <div>
+            <h1 class="text-3xl font-bold">Fix It</h1>
+            <p class="text-orange-100">Find solutions to fix broken things</p>
+          </div>
+        </div>
+
+        <button
+          id="themeBtn"
+          class="bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30 transition"
+        >
+          Dark Mode
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
+      <!-- SEARCH -->
+      <div class="mb-8">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search something broken..."
+          class="w-full p-4 rounded-lg border-2 border-orange-200 text-lg focus:outline-none focus:border-orange-500"
+        />
+      </div>
+
+      <!-- RESULTS -->
+      <div
+        id="results"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+      ></div>
+    </main>
+
+    <!-- MODAL -->
+    <div
+      id="modal"
+      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4"
+    >
+      <div
+        class="modal-box bg-white rounded-xl max-w-xl w-full overflow-hidden"
+      >
+        <div
+          class="bg-orange-600 text-white flex justify-between items-center p-4"
+        >
+          <h2 id="modalTitle" class="text-2xl font-bold"></h2>
+
+          <button id="closeModal">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <div class="p-6">
+          <p id="modalText" class="leading-relaxed"></p>
+        </div>
+      </div>
+    </div>
+    <!-- FULLSCREEN MODAL -->
+
+    <div id="modal" class="hidden fixed inset-0 z-50 bg-black">
+      <div class="w-full h-full overflow-auto bg-white dark-modal">
+        <!-- TOP BAR -->
+        <div
+          class="sticky top-0 bg-orange-600 text-white p-4 flex items-center justify-between shadow-lg"
+        >
+          <div class="flex items-center gap-3">
+            <button
+              id="backBtn"
+              class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg"
+            >
+              ← Back
+            </button>
+
+            <h2 id="modalTitle" class="text-2xl font-bold"></h2>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="max-w-4xl mx-auto p-8">
+          <div class="bg-orange-50 dark-card rounded-2xl p-8 shadow-lg">
+            <h3 class="text-3xl font-bold mb-6">How To Fix It</h3>
+
+            <p id="modalText" class="text-lg leading-relaxed"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const repairs = [
+        {
+          name: "Leaky faucet",
+          fix: "Turn off water supply. Replace the washer or O-ring. Reassemble and test.",
+        },
+
+        {
+          name: "Broken zipper",
+          fix: "Apply lubricant or replace the zipper slider carefully.",
+        },
+
+        {
+          name: "Flat bicycle tire",
+          fix: "Remove the tube, patch the hole, and pump air back into the tire.",
+        },
+
+        {
+          name: "Clogged sink",
+          fix: "Use a plunger or drain snake. Flush with hot water afterward.",
+        },
+
+        {
+          name: "Loose door handle",
+          fix: "Tighten the screws using a screwdriver or Allen key.",
+        },
+
+        {
+          name: "Dirty fan",
+          fix: "Unplug the fan and clean blades with a cloth or brush.",
+        },
+
+        {
+          name: "Replacing broken tires",
+          fix: "Lift vehicle safely, remove old tire, and install a new one securely.",
+        },
+
+        {
+          name: "Replacing kitchen tiles",
+          fix: "Remove broken tile, apply adhesive, and install a new tile.",
+        },
+
+        {
+          name: "Leaky faucet",
+          fix: "Turn off water supply. Replace the washer or O-ring. Reassemble and test.",
+        },
+
+        {
+          name: "Loose door handle",
+          fix: "Tighten the screws using a screwdriver or Allen key.",
+        },
+
+        {
+          name: "Squeaky door",
+          fix: "Apply oil or lubricant to the hinges.",
+        },
+
+        {
+          name: "Flat bicycle tire",
+          fix: "Remove the wheel, patch the tube, and inflate properly.",
+        },
+
+        {
+          name: "Broken shoelace",
+          fix: "Replace the shoelace with a new one of the correct length.",
+        },
+
+        {
+          name: "Clogged sink",
+          fix: "Use a plunger or drain snake. Flush with hot water.",
+        },
+
+        {
+          name: "Running toilet",
+          fix: "Check the flapper and float mechanism inside the tank.",
+        },
+
+        {
+          name: "Loose cabinet hinge",
+          fix: "Tighten hinge screws or replace damaged hinges.",
+        },
+
+        {
+          name: "Torn shirt button",
+          fix: "Sew the button back using matching thread.",
+        },
+
+        {
+          name: "Dead remote batteries",
+          fix: "Replace with fresh batteries and check polarity.",
+        },
+
+        {
+          name: "Jammed drawer",
+          fix: "Remove obstructions and lubricate the tracks.",
+        },
+
+        {
+          name: "Scratched wall paint",
+          fix: "Sand lightly and repaint the damaged area.",
+        },
+
+        {
+          name: "Loose shelf",
+          fix: "Tighten brackets and wall anchors securely.",
+        },
+
+        {
+          name: "Broken zipper",
+          fix: "Lubricate or replace the zipper slider.",
+        },
+
+        {
+          name: "Tangled necklace",
+          fix: "Use oil and a pin to carefully untangle knots.",
+        },
+
+        {
+          name: "Wobbly chair",
+          fix: "Tighten all screws and stabilize uneven legs.",
+        },
+
+        {
+          name: "Dirty fan",
+          fix: "Unplug and clean blades using a cloth or brush.",
+        },
+
+        {
+          name: "Cracked phone screen protector",
+          fix: "Remove the old protector and apply a new one.",
+        },
+
+        {
+          name: "Sticky keyboard keys",
+          fix: "Clean beneath keys with compressed air or alcohol.",
+        },
+
+        {
+          name: "Loose bed frame",
+          fix: "Tighten bolts and reinforce weak joints.",
+        },
+
+        {
+          name: "Broken ruler edge",
+          fix: "Smooth rough edges carefully or replace the ruler if measurements become inaccurate.",
+        },
+
+        {
+          name: "Loose backpack zipper pull",
+          fix: "Reattach the zipper pull using a small ring or replace it completely.",
+        },
+
+        {
+          name: "Dirty TV screen",
+          fix: "Use a microfiber cloth and screen-safe cleaner to wipe gently.",
+        },
+
+        {
+          name: "Bent fork",
+          fix: "Carefully straighten the fork using pliers or gentle pressure.",
+        },
+
+        {
+          name: "Stained bedsheet",
+          fix: "Wash with stain remover and warm water according to fabric instructions.",
+        },
+
+        {
+          name: "Loose shoe sole",
+          fix: "Apply strong shoe glue and press firmly until dry.",
+        },
+
+        {
+          name: "Cracked bucket handle",
+          fix: "Replace the handle or reinforce it using strong tape or wire.",
+        },
+
+        {
+          name: "Sticky light switch",
+          fix: "Turn off power and clean around the switch carefully.",
+        },
+
+        {
+          name: "Torn curtain edge",
+          fix: "Sew the torn edge neatly using matching thread.",
+        },
+
+        {
+          name: "Loose bicycle seat",
+          fix: "Tighten the seat clamp using an Allen key or wrench.",
+        },
+
+        {
+          name: "Dirty keyboard screen",
+          fix: "Wipe gently using a microfiber cloth and screen cleaner.",
+        },
+
+        {
+          name: "Broken lunchbox clip",
+          fix: "Replace the clip or use strong adhesive if repairable.",
+        },
+
+        {
+          name: "Weak alarm clock battery",
+          fix: "Replace with fresh batteries of the same type.",
+        },
+
+        {
+          name: "Scratched phone cover",
+          fix: "Polish lightly or replace the damaged phone cover.",
+        },
+
+        {
+          name: "Loose sink stopper",
+          fix: "Tighten or reconnect the stopper mechanism underneath the sink.",
+        },
+
+        {
+          name: "Bent paper clip holder",
+          fix: "Straighten carefully using pliers.",
+        },
+
+        {
+          name: "Broken tape dispenser",
+          fix: "Replace the cutting blade or dispenser mechanism.",
+        },
+
+        {
+          name: "Dusty bookshelf",
+          fix: "Remove books and wipe shelves using a damp cloth.",
+        },
+
+        {
+          name: "Loose ceiling fan screw",
+          fix: "Turn off power and tighten screws securely.",
+        },
+
+        {
+          name: "Torn glove fingertip",
+          fix: "Sew the tear or patch it using fabric glue.",
+        },
+
+        {
+          name: "Broken toy battery cover",
+          fix: "Replace the cover or secure batteries safely with tape temporarily.",
+        },
+
+        {
+          name: "Sticky table surface",
+          fix: "Clean with warm soapy water and dry thoroughly.",
+        },
+
+        {
+          name: "Cracked plastic chair leg",
+          fix: "Reinforce with epoxy glue or replace the chair.",
+        },
+
+        {
+          name: "Loose cupboard shelf pin",
+          fix: "Push the pin firmly back into place or replace it.",
+        },
+
+        {
+          name: "Dirty shoe laces",
+          fix: "Wash laces with soap and warm water.",
+        },
+
+        {
+          name: "Broken laundry basket handle",
+          fix: "Replace the handle or reinforce it securely.",
+        },
+
+        {
+          name: "Jammed cupboard lock",
+          fix: "Apply lubricant and gently move the key.",
+        },
+
+        {
+          name: "Torn mattress cover",
+          fix: "Sew the tear carefully using strong thread.",
+        },
+
+        {
+          name: "Weak calculator battery",
+          fix: "Replace the calculator battery with a fresh one.",
+        },
+
+        {
+          name: "Loose backpack buckle",
+          fix: "Tighten or resew the buckle straps securely.",
+        },
+
+        {
+          name: "Cracked mirror corner",
+          fix: "Use protective tape or replace the mirror for safety.",
+        },
+
+        {
+          name: "Dirty dish rack",
+          fix: "Wash thoroughly with soap and rinse clean.",
+        },
+
+        {
+          name: "Broken key holder hook",
+          fix: "Replace the hook or glue it back securely.",
+        },
+
+        {
+          name: "Bent notebook spiral",
+          fix: "Straighten gently using your hands or pliers.",
+        },
+
+        {
+          name: "Loose broom bristles",
+          fix: "Secure with glue or replace the broom head.",
+        },
+
+        {
+          name: "Torn chair cushion",
+          fix: "Sew the tear and replace stuffing if needed.",
+        },
+
+        {
+          name: "Sticky remote buttons",
+          fix: "Clean buttons using alcohol and cotton swabs.",
+        },
+
+        {
+          name: "Broken water bottle lid",
+          fix: "Replace the lid with a compatible one.",
+        },
+
+        {
+          name: "Loose desk drawer handle",
+          fix: "Tighten screws from inside the drawer.",
+        },
+
+        {
+          name: "Dirty wall corner",
+          fix: "Wipe using a sponge and mild cleaner.",
+        },
+
+        {
+          name: "Cracked storage box",
+          fix: "Seal cracks using plastic adhesive or replace it.",
+        },
+
+        {
+          name: "Bent hanger hook",
+          fix: "Straighten carefully using pliers.",
+        },
+
+        {
+          name: "Torn raincoat pocket",
+          fix: "Sew the tear or apply waterproof fabric glue.",
+        },
+
+        {
+          name: "Loose mop head",
+          fix: "Twist or tighten the mop head securely.",
+        },
+
+        {
+          name: "Dirty window rail",
+          fix: "Brush out dirt and wipe with a damp cloth.",
+        },
+
+        {
+          name: "Broken toy button",
+          fix: "Replace or glue the button back carefully.",
+        },
+
+        {
+          name: "Weak bicycle bell",
+          fix: "Tighten the bell or replace worn parts.",
+        },
+
+        {
+          name: "Loose charger cable",
+          fix: "Reconnect securely or replace damaged cables.",
+        },
+
+        {
+          name: "Cracked pencil case",
+          fix: "Seal cracks with glue or replace the case.",
+        },
+
+        {
+          name: "Sticky cupboard handle",
+          fix: "Clean with warm water and mild soap.",
+        },
+
+        {
+          name: "Torn towel edge",
+          fix: "Sew the edge to stop further tearing.",
+        },
+
+        {
+          name: "Loose table leg screw",
+          fix: "Tighten all table leg screws firmly.",
+        },
+
+        {
+          name: "Dirty microwave door",
+          fix: "Wipe with glass cleaner and soft cloth.",
+        },
+
+        {
+          name: "Broken soap pump",
+          fix: "Clean the pump or replace it.",
+        },
+
+        {
+          name: "Bent lamp shade",
+          fix: "Reshape gently using your hands.",
+        },
+
+        {
+          name: "Torn bedsheet seam",
+          fix: "Sew the seam using matching thread.",
+        },
+
+        {
+          name: "Loose headphone cushion",
+          fix: "Reattach with adhesive or clips.",
+        },
+
+        {
+          name: "Cracked ice tray",
+          fix: "Replace the tray if leaking badly.",
+        },
+
+        {
+          name: "Sticky notebook cover",
+          fix: "Clean with a damp cloth and mild soap.",
+        },
+
+        {
+          name: "Broken plastic spoon",
+          fix: "Replace the spoon for safe use.",
+        },
+
+        {
+          name: "Dirty switchboard",
+          fix: "Turn off power and clean carefully with a dry cloth.",
+        },
+
+        {
+          name: "Loose wall clock battery cover",
+          fix: "Snap the cover back or secure with tape.",
+        },
+
+        {
+          name: "Torn backpack lining",
+          fix: "Sew the lining using strong thread.",
+        },
+
+        {
+          name: "Weak TV remote signal",
+          fix: "Replace batteries and clean the sensor.",
+        },
+
+        {
+          name: "Bent kitchen spatula",
+          fix: "Straighten carefully using gentle pressure.",
+        },
+
+        {
+          name: "Broken comb tooth",
+          fix: "Replace the comb if it affects use.",
+        },
+
+        {
+          name: "Dirty floor mat",
+          fix: "Shake out dirt and wash with soap.",
+        },
+
+        {
+          name: "Loose water tap screw",
+          fix: "Tighten using the correct screwdriver.",
+        },
+
+        {
+          name: "Cracked dustbin lid",
+          fix: "Seal with adhesive or replace the lid.",
+        },
+
+        {
+          name: "Sticky pen cap",
+          fix: "Clean dried ink using warm water.",
+        },
+
+        {
+          name: "Torn umbrella fabric",
+          fix: "Patch using waterproof repair tape.",
+        },
+
+        {
+          name: "Loose bicycle reflector",
+          fix: "Tighten reflector screws securely.",
+        },
+
+        {
+          name: "Dirty shoe rack",
+          fix: "Wipe clean with soap and water.",
+        },
+
+        {
+          name: "Broken folder clip",
+          fix: "Replace the clip or glue carefully.",
+        },
+
+        {
+          name: "Weak torch bulb",
+          fix: "Replace the bulb or batteries.",
+        },
+
+        {
+          name: "Bent cooking pot lid",
+          fix: "Carefully reshape using gentle pressure.",
+        },
+
+        {
+          name: "Torn apron string",
+          fix: "Sew or replace the apron string.",
+        },
+
+        {
+          name: "Loose cable tie",
+          fix: "Replace with a new cable tie.",
+        },
+
+        {
+          name: "Dirty cupboard corner",
+          fix: "Clean using a cloth and cleaner spray.",
+        },
+
+        {
+          name: "Broken toy antenna",
+          fix: "Glue back carefully or replace the toy part.",
+        },
+
+        {
+          name: "Sticky bathroom shelf",
+          fix: "Clean thoroughly with warm soapy water.",
+        },
+
+        {
+          name: "Cracked washing basin edge",
+          fix: "Seal cracks using waterproof epoxy.",
+        },
+
+        {
+          name: "Loose door stopper",
+          fix: "Tighten screws or replace adhesive.",
+        },
+
+        {
+          name: "Torn pillow seam",
+          fix: "Sew the seam closed neatly.",
+        },
+
+        {
+          name: "Dirty fan blades",
+          fix: "Turn off fan and wipe blades carefully.",
+        },
+
+        {
+          name: "Broken stapler spring",
+          fix: "Replace the spring or use a new stapler.",
+        },
+
+        {
+          name: "Weak extension cord switch",
+          fix: "Replace the extension cord for safety.",
+        },
+
+        {
+          name: "Bent ruler corner",
+          fix: "Straighten gently or replace the ruler.",
+        },
+
+        {
+          name: "Torn couch pillow",
+          fix: "Sew the tear and refill stuffing if needed.",
+        },
+
+        {
+          name: "Loose drawer knob",
+          fix: "Tighten the knob screw from inside.",
+        },
+
+        {
+          name: "Dirty curtain rings",
+          fix: "Remove and wash with warm water.",
+        },
+
+        {
+          name: "Broken marker cap",
+          fix: "Replace the cap to prevent drying out.",
+        },
+
+        {
+          name: "Sticky cabinet shelf",
+          fix: "Clean sticky residue using warm soapy water.",
+        },
+
+        {
+          name: "Cracked bucket bottom",
+          fix: "Seal using waterproof adhesive.",
+        },
+
+        {
+          name: "Loose bike basket",
+          fix: "Tighten mounting brackets securely.",
+        },
+
+        {
+          name: "Torn laundry bag",
+          fix: "Sew the tear using strong thread.",
+        },
+
+        {
+          name: "Dirty shoe brush",
+          fix: "Wash bristles with soap and water.",
+        },
+
+        {
+          name: "Broken clock hand",
+          fix: "Reattach or replace the clock hand carefully.",
+        },
+
+        {
+          name: "Weak flashlight switch",
+          fix: "Clean contacts or replace the switch.",
+        },
+
+        {
+          name: "Bent frying pan handle",
+          fix: "Tighten or carefully straighten the handle.",
+        },
+      ];
+
+      const results = document.getElementById("results");
+      const searchInput = document.getElementById("searchInput");
+
+      function renderRepairs(search = "") {
+        results.innerHTML = "";
+
+        const filtered = repairs.filter(
+          (item) =>
+            item.name.toLowerCase().includes(search.toLowerCase()) ||
+            item.fix.toLowerCase().includes(search.toLowerCase()),
+        );
+
+        if (filtered.length === 0) {
+          results.innerHTML = `
+          <div class="col-span-full text-center text-gray-500 text-xl">
+            No repairs found
+          </div>
+        `;
+          return;
+        }
+
+        filtered.forEach((item) => {
+          const card = document.createElement("div");
+
+          card.className =
+            "card bg-white rounded-xl shadow-md hover:shadow-xl transition p-5 border-l-4 border-orange-500 cursor-pointer";
+
+          card.innerHTML = `
+          <h3 class="text-xl font-bold mb-2">${item.name}</h3>
+
+          <p class="text-gray-600 line-clamp-3">
+            ${item.fix}
+          </p>
+
+          <div class="mt-4 text-orange-600 font-semibold flex items-center gap-2">
+            View Guide
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </div>
+        `;
+
+          card.addEventListener("click", () => openModal(item));
+
+          results.appendChild(card);
+        });
+
+        lucide.createIcons();
+      }
+
+      searchInput.addEventListener("input", (e) => {
+        renderRepairs(e.target.value);
+      });
+
+      // MODAL
+      const modal = document.getElementById("modal");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalText = document.getElementById("modalText");
+
+      function openModal(item) {
+        modalTitle.textContent = item.name;
+        modalText.textContent = item.fix;
+
+        modal.classList.remove("hidden");
+
+        lucide.createIcons();
+      }
+
+      document.getElementById("closeModal").addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.add("hidden");
+        }
+      });
+
+      // THEME
+      const themeBtn = document.getElementById("themeBtn");
+
+      themeBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+
+        if (document.body.classList.contains("dark-mode")) {
+          themeBtn.textContent = "Light Mode";
+        } else {
+          themeBtn.textContent = "Dark Mode";
+        }
+      });
+
+      renderRepairs();
+
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
